@@ -1,3 +1,5 @@
+import pandas as pd
+
 class Product:
     '''
     A class to represent a product in the inventory.
@@ -82,8 +84,8 @@ class Supplier:
         self.contact_info = contact_info
         self.supplied_products = []
 
-        def __repr__(self):
-            """
+    def __repr__(self):
+        """
             Returns a string representation of the supplier object.
 
             Returns
@@ -91,7 +93,7 @@ class Supplier:
             str
                 String representation of the supplier.
             """
-            return f"Supplier(ID={self.supplier_id}, Name={self.name}, Contact Info={self.contact_info})"
+        return f"Supplier(ID={self.supplier_id}, Name={self.name}, Contact Info={self.contact_info})"
 
 class Inventory:
     """
@@ -132,6 +134,64 @@ class Inventory:
             Supplier object to be added to the inventory.
         """
         self.suppliers.append(supplier)
+    
+    def save_to_csv(self, product_file='products.csv', supplier_file='suppliers.csv'):
+        """
+        Saves the inventory to CSV files.
+
+        Parameters
+        ----------
+        product_file : str
+            Name of the file to save the products.
+        supplier_file : str
+            Name of the file to save the suppliers.
+        """
+        # Save products to CSV
+        product_data = [{
+            'ID': p.product_id,
+            'Name': p.name,
+            'Description': p.description,
+            'Price': p.price,
+            'Quantity': p.quantity
+        } for p in self.products]
+
+        df_products = pd.DataFrame(product_data)
+        df_products.to_csv(product_file, index=False)
+
+        # Save suppliers to CSV
+        supplier_data = [{
+            'ID': s.supplier_id,
+            'Name': s.name,
+            'Contact Info': s.contact_info
+        } for s in self.suppliers]
+
+        df_suppliers = pd.DataFrame(supplier_data)
+        df_suppliers.to_csv(supplier_file, index=False)
+    
+    def load_from_csv(self, product_file='products.csv', supplier_file='suppliers.csv'):
+        """
+        Loads the inventory from CSV files.
+
+        Parameters
+        ----------
+        product_file : str
+            Name of the file to load the products.
+        supplier_file : str
+            Name of the file to load the suppliers.
+        """
+        # Load products from CSV
+        df_products = pd.read_csv(product_file)
+        self.products = [
+            Product(row['ID'], row['Name'], row['Description'], row['Price'], row['Quantity'])
+            for _, row in df_products.iterrows()
+        ]
+
+        # Load suppliers from CSV
+        df_suppliers = pd.read_csv(supplier_file)
+        self.suppliers = [
+            Supplier(row['ID'], row['Name'], row['Contact Info'])
+            for _, row in df_suppliers.iterrows()
+        ]
 
     def __repr__ (self):
         """
