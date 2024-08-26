@@ -135,6 +135,21 @@ class Inventory:
         """
         self.suppliers.append(supplier)
     
+    def remove_supplier(self, supplier_id):
+        """
+        Removes a supplier from the inventory.
+
+        Parameters
+        ----------
+        supplier_id : int
+            Unique identifier of the supplier to be removed.
+        """
+        for i, supplier in enumerate(self.suppliers):
+            if supplier.supplier_id == supplier_id:
+                del self.suppliers[i]
+                return True
+        return False
+    
     def save_to_csv(self, product_file='products.csv', supplier_file='suppliers.csv'):
         """
         Saves the inventory to CSV files.

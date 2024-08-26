@@ -5,7 +5,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from flask import Flask, request, jsonify
-from scripts.inventory_man import Inventory, Product
+from scripts.inventory_man import Inventory, Product, Supplier
 
 app = Flask(__name__)
 
@@ -88,6 +88,29 @@ def increase_price():
     for product in inventory.products:
         product.price *= (1 + percentage / 100)
     return jsonify({"message": "Price increased successfully"}), 200
+
+@app.route('/suppliers', methods=['POST'])
+def add_supplier():
+    """
+    Add a supplier to the inventory.
+    """
+    data = request.get_json()
+    supplier = Supplier(data['supplier_id'], data['name'], data['contact_info'])
+    inventory.add_supplier(supplier)
+
+    return jsonify({"message": "Supplier added successfully"}), 201
+
+@app.route('/suppliers/<int:supplier_id>', methods=['DELETE'])
+def remove_supplier(supplier_id):
+    """
+    Delete a supplier from the inventory.
+    """
+    result = inventory.remove_supplier(supplier_id)
+    if result:
+        return jsonify({"message": "Supplier deleted successfully"}), 200
+    else:
+        return jsonify({"message": "Supplier not found"}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True)
