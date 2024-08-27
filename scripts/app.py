@@ -38,8 +38,7 @@ def remove_product(product_id):
         if product.product_id == product_id:
             inventory.products.remove(product)
             return jsonify({"message": "Product deleted successfully"}), 200
-
-    return jsonify({"message": "Product not found"}), 404
+    return jsonify({"error": "Product not found"}), 404
 
 @app.route('/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
@@ -59,8 +58,9 @@ def update_product(product_id):
             product.price = price
             product.quantity = quantity
             return jsonify({"message": "Product updated successfully"}), 200
+        
+    return jsonify({"error": "Product not found"}), 404
 
-    return jsonify({"message": "Product not found"}), 404
 
 @app.route('/products/<int:product_id>', methods=['GET'])
 def query_product(product_id):
@@ -69,15 +69,14 @@ def query_product(product_id):
     """
     for product in inventory.products:
         if product.product_id == product_id:
-            return jsonify({
-                "product_id": product.product_id,
-                "name": product.name,
-                "description": product.description,
-                "price": product.price,
-                "quantity": product.quantity
-            }), 200
+            return jsonify(product.to_dict()), 200
+    return jsonify({"error": "Product not found"}), 404
 
-    return jsonify({"message": "Product not found"}), 404
+@app.route('/products', methods=['GET'])
+def list_products():
+    products = inventory.get_all_products()
+    return jsonify(products), 200
+
 
 @app.route('/products/increase_price', methods=['PATCH'])
 def increase_price():
@@ -110,6 +109,12 @@ def remove_supplier(supplier_id):
         return jsonify({"message": "Supplier deleted successfully"}), 200
     else:
         return jsonify({"message": "Supplier not found"}), 404
+
+@app.route('/suppliers', methods=['GET'])
+def list_suppliers():
+    suppliers = inventory.get_all_suppliers()
+    return jsonify(suppliers), 200
+
 
 
 if __name__ == '__main__':
