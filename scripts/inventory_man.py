@@ -39,6 +39,23 @@ class Product:
         self.description = description
         self.price = price
         self.quantity = quantity
+
+    def to_dict(self):
+        """
+        Returns a dictionary representation of the product object.
+
+        Returns
+        -------
+        dict
+            Dictionary representation of the product.
+        """
+        return {
+            'product_id': self.product_id,
+            'name': self.name,
+            'description': self.description,
+            'price': self.price,
+            'quantity': self.quantity
+        }
     
     def __repr__(self):
         """
@@ -113,6 +130,8 @@ class Inventory:
         self.products = []
         self.suppliers = []
 
+
+    # Product Management Methods
     def add_product(self, product):
         """
         Adds a product to the inventory.
@@ -124,6 +143,94 @@ class Inventory:
         """
         self.products.append(product)
 
+    def remove_product(self, product_id):
+        """
+        Removes a product from the inventory.
+
+        Parameters
+        ----------
+        product_id : int
+            Unique identifier of the product to be removed.
+        """
+        for i, product in enumerate(self.products):
+            if product.product_id == product_id:
+                del self.products[i]
+                return True
+        return False
+
+    def update_product(self, product_id, name=None, description=None, price=None, quantity=None):
+        """
+        Updates the details of a product in the inventory.
+
+        Parameters
+        ----------
+        product_id : int
+            Unique identifier of the product to be updated.
+        name : str
+            New name of the product.
+        description : str
+            New description of the product.
+        price : float
+            New price of the product.
+        quantity : int
+            New quantity of the product.
+        """
+        product = self.get_product(product_id)
+        if product:
+            if name:
+                product.name = name
+            if description:
+                product.description = description
+            if price:
+                product.price = price
+            if quantity:
+                product.quantity = quantity
+            return True
+        return False
+    
+    def get_product(self, product_id):
+        """
+        Retrieves a product from the inventory.
+
+        Parameters
+        ----------
+        product_id : int
+            Unique identifier of the product to be retrieved.
+
+        Returns
+        -------
+        Product
+            Product object if found, None otherwise.
+        """
+        for product in self.products:
+            if product.product_id == product_id:
+                return product
+        return None
+    
+    def get_all_products(self):
+        """
+        Retrieves all products from the inventory.
+
+        Returns
+        -------
+        list
+            List of all products in the inventory.
+        """
+        return [repr(product) for product in self.products]
+    
+    def increase_price(self, percentage):
+        """
+        Increases the price of all products in the inventory by a percentage.
+
+        Parameters
+        ----------
+        percentage : float
+            Percentage by which to increase the price of all products.
+        """
+        for product in self.products:
+            product.price += product.price * (percentage / 100)
+    
+    # Supplier Management Methods
     def add_supplier(self, supplier):
         """
         Adds a supplier to the inventory.
@@ -149,6 +256,58 @@ class Inventory:
                 del self.suppliers[i]
                 return True
         return False
+    
+    def update_supplier(self, supplier_id, name=None, contact_info=None):
+        """
+        Updates the details of a supplier in the inventory.
+
+        Parameters
+        ----------
+        supplier_id : int
+            Unique identifier of the supplier to be updated.
+        name : str
+            New name of the supplier.
+        contact_info : str
+            New contact information of the supplier.
+        """
+        supplier = self.get_supplier(supplier_id)
+        if supplier:
+            if name:
+                supplier.name = name
+            if contact_info:
+                supplier.contact_info = contact_info
+            return True
+        return False
+    
+    def get_supplier(self, supplier_id):
+        """
+        Retrieves a supplier from the inventory.
+
+        Parameters
+        ----------
+        supplier_id : int
+            Unique identifier of the supplier to be retrieved.
+
+        Returns
+        -------
+        Supplier
+            Supplier object if found, None otherwise.
+        """
+        for supplier in self.suppliers:
+            if supplier.supplier_id == supplier_id:
+                return supplier
+        return None
+    
+    def get_all_suppliers(self):
+        """
+        Retrieves all suppliers from the inventory.
+
+        Returns
+        -------
+        list
+            List of all suppliers in the inventory.
+        """
+        return [repr(supplier) for supplier in self.suppliers]
     
     def save_to_csv(self, product_file='products.csv', supplier_file='suppliers.csv'):
         """
