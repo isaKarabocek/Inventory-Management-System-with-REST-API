@@ -34,32 +34,30 @@ def remove_product(product_id):
     """
     Delete a product from the inventory.
     """
-    for product in inventory.products:
-        if product.product_id == product_id:
-            inventory.products.remove(product)
-            return jsonify({"message": "Product deleted successfully"}), 200
-    return jsonify({"error": "Product not found"}), 404
+    result = inventory.remove_product(product_id)
+    if result:
+        return jsonify({"message": "Product deleted successfully"}), 200
+    else:
+        return jsonify({"message": "Product not found"}), 404
 
 @app.route('/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     """
     Update a product in the inventory.
     """
-    data = request.get_json()
-    name = data['name']
-    description = data['description']
-    price = data['price']
-    quantity = data['quantity']
+    data = request.json
+    result = inventory.update_product(
+        product_id,
+        name=data.get('name'),
+        description=data.get('description'),
+        price=data.get('price'),
+        quantity=data.get('quantity')
+    )
 
-    for product in inventory.products:
-        if product.product_id == product_id:
-            product.name = name
-            product.description = description
-            product.price = price
-            product.quantity = quantity
-            return jsonify({"message": "Product updated successfully"}), 200
-        
-    return jsonify({"error": "Product not found"}), 404
+    if result:
+        return jsonify({"message": "Product updated successfully"}), 200
+    else:
+        return jsonify({"message": "Product not found"}), 404
 
 
 @app.route('/products/<int:product_id>', methods=['GET'])
@@ -67,10 +65,11 @@ def query_product(product_id):
     """
     Get details of a product in the inventory.
     """
-    for product in inventory.products:
-        if product.product_id == product_id:
-            return jsonify(product.to_dict()), 200
-    return jsonify({"error": "Product not found"}), 404
+    product = inventory.get_product(product_id)
+    if product:
+        return jsonify(repr(product)), 200
+    else:
+        return jsonify({"message": "Product not found"}), 404
 
 @app.route('/products', methods=['GET'])
 def list_products():
@@ -78,15 +77,14 @@ def list_products():
     return jsonify(products), 200
 
 
-@app.route('/products/increase_price', methods=['PATCH'])
+@app.route('/products/increase_price', methods=['POST'])
 def increase_price():
     """
     Increase the price of all products in the inventory.
     """
-    percentage = request.json['percentage']
-    for product in inventory.products:
-        product.price *= (1 + percentage / 100)
-    return jsonify({"message": "Price increased successfully"}), 200
+    percentage = request.json.get('percentage')
+    inventory.increase_price(percentage)
+    return jsonify({'message': f'All product prices increased by {percentage}%'}), 200
 
 @app.route('/suppliers', methods=['POST'])
 def add_supplier():
